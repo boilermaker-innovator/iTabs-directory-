@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iTabs Directory - My Pages</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gfm-green: #01BC66;
+            --gfm-green-dark: #00A659;
+            --gfm-green-light: #E6FBF0;
+            --text-dark: #1a1a1a;
+            --text-mid: #4a5568;
+            --text-light: #718096;
+            --bg-white: #ffffff;
+            --bg-grey: #f7f8fa;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, var(--gfm-green-light) 0%, var(--bg-grey) 30%);
+            min-height: 100vh;
+            padding: 30px 20px 60px;
+        }
+
+```
+    .header {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto 30px;
+    }
+    .header h1 {
+        font-size: 2em;
+        font-weight: 700;
+        color: var(--gfm-green);
+        margin-bottom: 8px;
+    }
+    .header p {
+        color: var(--text-mid);
+        font-size: 1em;
+    }
+    
+    .directory {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    /* iTabs Card */
+    .card {
+        background: var(--bg-white);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .card-header {
+        position: relative;
+        height: 120px;
+        background: linear-gradient(135deg, var(--gfm-green), var(--gfm-green-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .card-header .icon {
+        font-size: 3em;
+    }
+    .card-header .status {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.7em;
+        font-weight: 600;
+    }
+    .status-live { background: #d1fae5; color: #065f46; }
+    .status-testing { background: #fef3c7; color: #92400e; }
+    .status-planned { background: #e2e8f0; color: #64748b; }
+    
+    .i-btn {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        width: 44px;
+        height: 44px;
+        background: #fff;
+        color: var(--gfm-green);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 22px;
+        font-style: italic;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        border: 2px solid var(--gfm-green);
+        transition: transform 0.2s;
+    }
+    .i-btn:hover { transform: scale(1.1); }
+    
+    .card-content {
+        padding: 18px;
+        text-align: center;
+    }
+    .card-content h3 {
+        color: var(--text-dark);
+        font-size: 1.1em;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    .card-content .description {
+        color: var(--text-light);
+        font-size: 0.85em;
+        margin-bottom: 12px;
+    }
+    .card-content .url {
+        display: inline-block;
+        background: var(--bg-grey);
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.8em;
+        font-family: monospace;
+        color: var(--text-mid);
+        margin-bottom: 14px;
+        word-break: break-all;
+    }
+    .open-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, var(--gfm-green), var(--gfm-green-dark));
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95em;
+    }
+    .open-btn:hover { opacity: 0.9; }
+    .open-btn.disabled {
+        background: #e2e8f0;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+    
+    .card-footer {
+        text-align: center;
+        padding: 10px 18px 16px;
+        font-size: 0.75em;
+        color: var(--text-light);
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    /* Popup */
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.75);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+    }
+    .popup-overlay.active { display: flex; }
+    .popup {
+        background: var(--bg-white);
+        border-radius: 20px;
+        max-width: 400px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .popup-header {
+        background: linear-gradient(135deg, var(--gfm-green), var(--gfm-green-dark));
+        color: white;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+    }
+    .popup-header h3 { font-size: 1.2em; margin-bottom: 4px; }
+    .popup-header p { opacity: 0.9; font-size: 0.85em; }
+    .close-btn {
+        position: absolute;
+        top: 12px; right: 12px;
+        width: 30px; height: 30px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .popup-body { padding: 20px; }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.9em;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-light); }
+    .info-value { color: var(--text-dark); font-weight: 500; text-align: right; }
+    .info-value a { color: var(--gfm-green); text-decoration: none; }
+    .info-value code {
+        background: var(--bg-grey);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85em;
+    }
+    .notes-box {
+        background: var(--gfm-green-light);
+        border-radius: 10px;
+        padding: 14px;
+        margin-top: 15px;
+        font-size: 0.85em;
+        color: var(--text-mid);
+        line-height: 1.5;
+    }
+    .notes-box strong { color: var(--gfm-green-dark); }
+    
+    .footer {
+        text-align: center;
+        margin-top: 30px;
+        color: var(--text-light);
+        font-size: 0.85em;
+    }
+    .footer a { color: var(--gfm-green); text-decoration: none; }
+    
+    .add-section {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .add-btn {
+        display: inline-block;
+        padding: 14px 30px;
+        background: var(--bg-white);
+        color: var(--gfm-green);
+        border: 2px dashed var(--gfm-green);
+        border-radius: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .add-btn:hover {
+        background: var(--gfm-green-light);
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="header">
+        <h1>📁 iTabs Directory</h1>
+        <p>All my iTabs pages in one place</p>
+    </div>
+
+```
+<div class="directory">
+    
+    <!-- Card 1: Generator -->
+    <div class="card">
+        <div class="card-header">
+            <span class="status status-live">🟢 Live</span>
+            <span class="icon">🛠️</span>
+            <div class="i-btn" onclick="openPopup('generator')">i</div>
+        </div>
+        <div class="card-content">
+            <h3>iTabs Generator</h3>
+            <p class="description">Create new iTabs for GoFundMe campaigns</p>
+            <div class="url">itabs.ai/index.html</div>
+            <a href="index.html" class="open-btn">Open Generator</a>
+        </div>
+        <div class="card-footer">Main tool • Last updated: Dec 2024</div>
+    </div>
+    
+    <!-- Card 2: Help Friend Demo -->
+    <div class="card">
+        <div class="card-header">
+            <span class="status status-live">🟢 Live</span>
+            <span class="icon">🏠</span>
+            <div class="i-btn" onclick="openPopup('helpfriend')">i</div>
+        </div>
+        <div class="card-content">
+            <h3>Help a Friend Demo</h3>
+            <p class="description">Taylor's campaign - toxic housing escape</p>
+            <div class="url">itabs.ai/help-friend.html</div>
+            <a href="help-friend.html" class="open-btn">View Demo</a>
+        </div>
+        <div class="card-footer">Real campaign demo • First prototype</div>
+    </div>
+    
+    <!-- Card 3: Campaigns Showcase -->
+    <div class="card">
+        <div class="card-header">
+            <span class="status status-testing">🟡 Testing</span>
+            <span class="icon">📋</span>
+            <div class="i-btn" onclick="openPopup('campaigns')">i</div>
+        </div>
+        <div class="card-content">
+            <h3>Campaigns Showcase</h3>
+            <p class="description">Grid of example campaigns</p>
+            <div class="url">itabs.ai/campaigns.html</div>
+            <a href="campaigns.html" class="open-btn">View Showcase</a>
+        </div>
+        <div class="card-footer">Multiple campaign examples</div>
+    </div>
+    
+    <!-- Card 4: This Directory -->
+    <div class="card">
+        <div class="card-header">
+            <span class="status status-live">🟢 Live</span>
+            <span class="icon">📁</span>
+            <div class="i-btn" onclick="openPopup('directory')">i</div>
+        </div>
+        <div class="card-content">
+            <h3>This Directory</h3>
+            <p class="description">You are here! Index of all pages</p>
+            <div class="url">itabs.ai/directory.html</div>
+            <a href="#" class="open-btn disabled">You're Here</a>
+        </div>
+        <div class="card-footer">Meta page • For Jon's reference</div>
+    </div>
+    
+    <div class="add-section">
+        <a href="index.html" class="add-btn">+ Create New iTabs</a>
+    </div>
+    
+</div>
+
+<div class="footer">
+    <p>Made with ❤️ by <a href="https://itabs.ai">iTabs</a> • Jon's prototype tracker</p>
+</div>
+
+<!-- Popups -->
+<div class="popup-overlay" id="popup-generator" onclick="closePopup(event, 'generator')">
+    <div class="popup" onclick="event.stopPropagation()">
+        <div class="popup-header">
+            <button class="close-btn" onclick="closePopup(event, 'generator')">&times;</button>
+            <h3>🛠️ iTabs Generator</h3>
+            <p>Page Details</p>
+        </div>
+        <div class="popup-body">
+            <div class="info-row">
+                <span class="info-label">URL</span>
+                <span class="info-value"><a href="index.html">itabs.ai/index.html</a></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value">🟢 Live</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Purpose</span>
+                <span class="info-value">Create iTabs</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">API Key</span>
+                <span class="info-value"><code>Gemini</code></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Image Host</span>
+                <span class="info-value"><code>ImgBB</code></span>
+            </div>
+            <div class="notes-box">
+                <strong>📝 Notes:</strong><br>
+                Main generator tool. Users paste GoFundMe text, AI organizes it, they add photos, download standalone HTML file. Edit links encode data in URL.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup-overlay" id="popup-helpfriend" onclick="closePopup(event, 'helpfriend')">
+    <div class="popup" onclick="event.stopPropagation()">
+        <div class="popup-header">
+            <button class="close-btn" onclick="closePopup(event, 'helpfriend')">&times;</button>
+            <h3>🏠 Help a Friend Demo</h3>
+            <p>Page Details</p>
+        </div>
+        <div class="popup-body">
+            <div class="info-row">
+                <span class="info-label">URL</span>
+                <span class="info-value"><a href="help-friend.html">itabs.ai/help-friend.html</a></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value">🟢 Live</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Campaign</span>
+                <span class="info-value">Taylor Barker</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Location</span>
+                <span class="info-value">Travancore VIC</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Original</span>
+                <span class="info-value"><a href="https://www.gofundme.com/f/help-a-friend-in-criss" target="_blank">GoFundMe</a></span>
+            </div>
+            <div class="notes-box">
+                <strong>📝 Notes:</strong><br>
+                First real campaign demo. Friend escaping toxic housing situation. Photos uploaded to ImgBB. Has donate button, edit link, and "View Original" comparison button.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup-overlay" id="popup-campaigns" onclick="closePopup(event, 'campaigns')">
+    <div class="popup" onclick="event.stopPropagation()">
+        <div class="popup-header">
+            <button class="close-btn" onclick="closePopup(event, 'campaigns')">&times;</button>
+            <h3>📋 Campaigns Showcase</h3>
+            <p>Page Details</p>
+        </div>
+        <div class="popup-body">
+            <div class="info-row">
+                <span class="info-label">URL</span>
+                <span class="info-value"><a href="campaigns.html">itabs.ai/campaigns.html</a></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value">🟡 Testing</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Purpose</span>
+                <span class="info-value">Show examples</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Campaigns</span>
+                <span class="info-value">1 live, 3 placeholder</span>
+            </div>
+            <div class="notes-box">
+                <strong>📝 Notes:</strong><br>
+                Grid showing multiple campaign demos. Currently has Help Friend as live demo, plus 3 placeholder examples (medical, fire, pet). Add more real demos as you create them.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup-overlay" id="popup-directory" onclick="closePopup(event, 'directory')">
+    <div class="popup" onclick="event.stopPropagation()">
+        <div class="popup-header">
+            <button class="close-btn" onclick="closePopup(event, 'directory')">&times;</button>
+            <h3>📁 This Directory</h3>
+            <p>Page Details</p>
+        </div>
+        <div class="popup-body">
+            <div class="info-row">
+                <span class="info-label">URL</span>
+                <span class="info-value"><a href="directory.html">itabs.ai/directory.html</a></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value">🟢 Live</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Purpose</span>
+                <span class="info-value">Track all pages</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">For</span>
+                <span class="info-value">Jon's reference</span>
+            </div>
+            <div class="notes-box">
+                <strong>📝 Notes:</strong><br>
+                This page! A meta directory to track all iTabs pages, their URLs, status, and notes. Update this whenever you add new pages.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openPopup(id) {
+        document.getElementById('popup-' + id).classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closePopup(event, id) {
+        if (!event || event.target.classList.contains('popup-overlay') || event.target.classList.contains('close-btn')) {
+            document.getElementById('popup-' + id).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.popup-overlay').forEach(p => p.classList.remove('active'));
+            document.body.style.overflow = '';
+        }
+    });
+</script>
+```
+
+</body>
+</html>
